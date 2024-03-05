@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: 16
       - run: npm i
+      - run: npm run build --if-present
       - run: npm test
 
   publish-gpr:
@@ -31,6 +32,17 @@ jobs:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
       - run: npm i
+      - run: npm run build --if-present 
       - run: npm test
+      - uses: awact/s3-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
         env:
+          SOURCE_DIR: './build'
+          AWS_REGION: 'ap-northeast-2'
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+          
